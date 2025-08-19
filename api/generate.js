@@ -24,6 +24,28 @@ function parseForm(req) {
   });
 }
 
+function normalizeEmptyValues(value) {
+  if (value === "") return undefined;
+  if (value === null) return undefined;
+  if (Array.isArray(value)) {
+    return value.map((v) => normalizeEmptyValues(v));
+  }
+  if (typeof value === "object" && value) {
+    const result = {};
+    for (const key of Object.keys(value)) {
+      const normalized = normalizeEmptyValues(value[key]);
+      if (normalized !== undefined) {
+        result[key] = normalized;
+      } else {
+        // Keep explicit undefined to trigger nullGetter on missing values
+        result[key] = undefined;
+      }
+    }
+    return result;
+  }
+  return value;
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", ["POST"]);
@@ -68,7 +90,15 @@ export default async function handler(req, res) {
 
     let doc;
     try {
-      doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+      doc = new Docxtemplater(zip, {
+        paragraphLoop: true,
+        linebreaks: true,
+        delimiters: { start: "[", end: "]" },
+        nullGetter(part) {
+          // Preserve unresolved placeholders as [[tag]]
+          return `[${part?.value ?? ""}]`;
+        },
+      });
     } catch (error) {
       return res.status(400).json({
         error: "Invalid DOCX template",
@@ -77,8 +107,8 @@ export default async function handler(req, res) {
     }
 
     try {
-      doc.setData(dataObj);
-      doc.render();
+      const normalizedData = normalizeEmptyValues(dataObj);
+      doc.render(normalizedData);
     } catch (error) {
       return res.status(400).json({ error: error.message || "Template rendering error" });
     }
