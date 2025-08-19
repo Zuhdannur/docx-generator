@@ -1,0 +1,18 @@
+{
+  "name": "docx-serverless",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "docxtemplater": "^3.45.3",
+    "formidable": "^3.5.1",
+    "pizzip": "^3.1.7"
+  },
+  "scripts": {
+    "dev": "node server.mjs"
+  }
+}
+
