@@ -94,8 +94,16 @@ export default async function handler(req, res) {
         paragraphLoop: true,
         linebreaks: true,
         delimiters: { start: "[", end: "]" },
+        parser: function(tag) {
+          // Keep spaces as-is in tag names
+          return {
+            get: function(scope) {
+              return scope[tag];
+            }
+          };
+        },
         nullGetter(part) {
-          // Preserve unresolved placeholders as [[tag]]
+          // Preserve unresolved placeholders as [tag]
           return `[${part?.value ?? ""}]`;
         },
       });
