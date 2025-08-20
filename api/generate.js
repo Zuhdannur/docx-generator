@@ -56,6 +56,7 @@ export default async function handler(req, res) {
     const { fields, files } = await parseForm(req);
 
     const dataField = fields?.data;
+    const outputFileName = fields?.outputFileName;
     const templateFile = files?.template;
 
     if (!templateFile) {
@@ -127,7 +128,10 @@ export default async function handler(req, res) {
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     );
-    res.setHeader("Content-Disposition", 'attachment; filename="output.docx"');
+    
+    // Use provided filename or default to "output.docx"
+    const fileName = outputFileName ? `${outputFileName}.docx` : "output.docx";
+    res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
     return res.status(200).send(buf);
   } catch (error) {
     const message =
