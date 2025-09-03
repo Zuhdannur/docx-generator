@@ -94,7 +94,7 @@ export default async function handler(req, res) {
       doc = new Docxtemplater(zip, {
         paragraphLoop: true,
         linebreaks: true,
-        delimiters: { start: "[[", end: "]]" },
+        delimiters: { start: "[", end: "]" },
         parser: function(tag) {
           // Keep spaces as-is in tag names
           return {
@@ -105,7 +105,7 @@ export default async function handler(req, res) {
         },
         nullGetter(part) {
           // Preserve unresolved placeholders as [[tag]]
-          return `[[${part?.value ?? ""}]]`;
+          return `[${part?.value ?? ""}]`;
         },
       });
     } catch (error) {
