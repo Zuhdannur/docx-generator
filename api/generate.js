@@ -25,8 +25,8 @@ function parseForm(req) {
 }
 
 function normalizeEmptyValues(value) {
-  if (value === "") return undefined;
-  if (value === null) return undefined;
+  if (value === "") return " ";
+  if (value === null) return " ";
   if (Array.isArray(value)) {
     return value.map((v) => normalizeEmptyValues(v));
   }
@@ -94,7 +94,7 @@ export default async function handler(req, res) {
       doc = new Docxtemplater(zip, {
         paragraphLoop: true,
         linebreaks: true,
-        delimiters: { start: "[", end: "]" },
+        delimiters: { start: "[[", end: "]]" },
         parser: function(tag) {
           // Keep spaces as-is in tag names
           return {
@@ -104,8 +104,8 @@ export default async function handler(req, res) {
           };
         },
         nullGetter(part) {
-          // Preserve unresolved placeholders as [tag]
-          return `[${part?.value ?? ""}]`;
+          // Preserve unresolved placeholders as [[tag]]
+          return `[[${part?.value ?? ""}]]`;
         },
       });
     } catch (error) {
